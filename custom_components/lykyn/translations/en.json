@@ -1,0 +1,55 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Lykyn Account",
+        "description": "Enter your Lykyn account credentials (the email and password you use to log in at lykyn.app).",
+        "data": {
+          "email": "Email",
+          "password": "Password"
+        }
+      }
+    },
+    "error": {
+      "invalid_auth": "Invalid email or password.",
+      "cannot_connect": "Unable to connect to the Lykyn cloud service."
+    },
+    "abort": {
+      "already_configured": "This account is already configured."
+    }
+  },
+  "entity": {
+    "sensor": {
+      "temperature": { "name": "Temperature" },
+      "humidity": { "name": "Humidity" },
+      "target_temp_min": { "name": "Target temperature min" },
+      "target_temp_max": { "name": "Target temperature max" },
+      "target_hum_min": { "name": "Target humidity min" },
+      "target_hum_max": { "name": "Target humidity max" }
+    },
+    "switch": {
+      "humidifier": { "name": "Humidifier" },
+      "light_switch": { "name": "Light" }
+    },
+    "number": {
+      "min_temperature": { "name": "Min temperature setpoint" },
+      "max_temperature": { "name": "Max temperature setpoint" },
+      "min_humidity": { "name": "Min humidity setpoint" },
+      "max_humidity": { "name": "Max humidity setpoint" },
+      "intake_fan_on": { "name": "Intake fan ON duration" },
+      "intake_fan_off": { "name": "Intake fan OFF duration" },
+      "exhaust_fan_on": { "name": "Exhaust fan ON duration" },
+      "exhaust_fan_off": { "name": "Exhaust fan OFF duration" },
+      "humidifier_on_duration": { "name": "Humidifier ON duration" },
+      "humidifier_below_min_duration": { "name": "Humidifier below-min duration" },
+      "light_brightness": { "name": "Light brightness" }
+    },
+    "light": {
+      "led_strip": { "name": "LED strip" }
+    },
+    "select": {
+      "control_type": { "name": "Control mode" },
+      "mushroom_type": { "name": "Mushroom type" }
+    }
+  }
+}

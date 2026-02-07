@@ -1,0 +1,12 @@
+{
+  "domain": "lykyn",
+  "name": "Lykyn Mushroom Grow Kit",
+  "codeowners": [],
+  "config_flow": true,
+  "documentation": "https://github.com/darkfogon/ha-lykyn",
+  "integration_type": "hub",
+  "iot_class": "cloud_push",
+  "issue_tracker": "https://github.com/darkfogon/ha-lykyn/issues",
+  "requirements": [],
+  "version": "0.1.0"
+}
