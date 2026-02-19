@@ -32,6 +32,8 @@
       "light_switch": { "name": "Light" }
     },
     "number": {
+      "fan_in_speed": { "name": "Fan in speed" },
+      "fan_out_speed": { "name": "Fan out speed" },
       "min_temperature": { "name": "Min temperature setpoint" },
       "max_temperature": { "name": "Max temperature setpoint" },
       "min_humidity": { "name": "Min humidity setpoint" },
