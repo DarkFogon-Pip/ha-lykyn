@@ -8,6 +8,7 @@ A custom Home Assistant integration for the **Lykyn Smart Mushroom Grow Kit** (b
 
 - **Real-time sensor data** via Socket.io push (temperature, humidity)
 - **Full device control**: fans, humidifier, LED light strip
+- **Fan speed control**: intake and exhaust fans independently set 0–3 (off → low → medium → high)
 - **29 mushroom species presets** with auto-configured temperature/humidity ranges
 - **LED effects**: Aurora, Breath, RGB Wave, Rainbow, Confetti, Sunset Fade
 - **Smart/Manual control modes**
@@ -19,11 +20,22 @@ A custom Home Assistant integration for the **Lykyn Smart Mushroom Grow Kit** (b
 |------|----------|-------------|
 | Sensor | 6 | Temperature, humidity, target min/max setpoints |
 | Switch | 2 | Humidifier on/off, light on/off |
-| Number | 11 | Temp/humidity setpoints, fan timers, humidifier durations, brightness |
+| Number | 13 | **Fan in/out speed (0–3)**, temp/humidity setpoints, fan cycle timers, humidifier durations, brightness |
 | Light | 1 | LED strip with RGB color, brightness, and 6 animation effects |
 | Select | 2 | Control mode (Smart/Manual), mushroom type (29 species) |
 
-**Total: ~22 entities per device**
+**Total: 24 entities per device**
+
+### Fan Speed Control
+
+The two fan speed sliders (`Fan in speed`, `Fan out speed`) match what the official Lykyn app exposes:
+
+| Value | Meaning |
+|-------|---------|
+| 0 | Fan off |
+| 1 | Low speed |
+| 2 | Medium speed |
+| 3 | High speed |
 
 ## Supported Mushroom Types
 
