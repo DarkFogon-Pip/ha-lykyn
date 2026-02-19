@@ -27,6 +27,16 @@ async def async_setup_entry(
 
     for device_id in coordinator.client.devices:
         entities.extend([
+            LykynFanSpeedEntity(
+                coordinator, device_id,
+                key="airin", name_key="fan_in_speed",
+                icon="mdi:fan",
+            ),
+            LykynFanSpeedEntity(
+                coordinator, device_id,
+                key="airout", name_key="fan_out_speed",
+                icon="mdi:fan",
+            ),
             LykynNumberEntity(
                 coordinator, device_id,
                 key="minTemp", name_key="min_temperature",
@@ -133,4 +143,36 @@ class LykynNumberEntity(LykynEntity, NumberEntity):
     async def async_set_native_value(self, value: float) -> None:
         await self.coordinator.client.update_device_info(
             self._device_id, {self._key: value}
+        )
+
+
+class LykynFanSpeedEntity(LykynEntity, NumberEntity):
+    """Fan speed control (0–3) for a Lykyn device."""
+
+    _attr_mode = NumberMode.SLIDER
+    _attr_native_min_value = 0
+    _attr_native_max_value = 3
+    _attr_native_step = 1
+
+    def __init__(
+        self,
+        coordinator: LykynCoordinator,
+        device_id: str,
+        key: str,
+        name_key: str,
+        icon: str,
+    ) -> None:
+        super().__init__(coordinator, device_id)
+        self._key = key
+        self._attr_unique_id = f"{device_id}_{key}_speed"
+        self._attr_translation_key = name_key
+        self._attr_icon = icon
+
+    @property
+    def native_value(self) -> float | None:
+        return self._device_info_data.get(self._key)
+
+    async def async_set_native_value(self, value: float) -> None:
+        await self.coordinator.client.update_device_info(
+            self._device_id, {self._key: int(value)}
         )

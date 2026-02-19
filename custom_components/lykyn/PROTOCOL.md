@@ -91,6 +91,9 @@ socket = io({
   "minHum": 85,
   "maxHum": 90,
 
+  "airin": 2,       // intake fan speed level (0=off, 1–3=low→high)
+  "airout": 1,      // exhaust fan speed level (0=off, 1–3=low→high)
+
   "airinOn": 3,
   "airoutOn": 0,
   "airinOff": 1,
