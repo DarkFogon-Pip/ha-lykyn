@@ -6,25 +6,28 @@ A custom Home Assistant integration for the **Lykyn Smart Mushroom Grow Kit** (b
 
 ## Features
 
-- **Real-time sensor data** via Socket.io push (temperature, humidity)
+- **Real-time sensor data** via Socket.io push (temperature, humidity) including `realtimeDeviceUpdates` live stream
 - **Full device control**: fans, humidifier, LED light strip
 - **Fan speed control**: intake and exhaust fans independently set 0–3 (off → low → medium → high)
 - **29 mushroom species presets** with auto-configured temperature/humidity ranges
-- **LED effects**: Aurora, Breath, RGB Wave, Rainbow, Confetti, Sunset Fade
+- **29 LED animations** + Emotional mode + full RGB manual color
+- **Light mode control**: Animation, Manual (solid color), Emotional
+- **Smart mode subsystem toggles**: independently enable/disable light and humidifier in Smart mode
+- **Sensor calibration offsets**: adjust temperature and humidity readings
 - **Smart/Manual control modes**
 - **Multi-device support**
 
 ## Entities (per device)
 
-| Type | Entities | Description |
-|------|----------|-------------|
-| Sensor | 6 | Temperature, humidity, target min/max setpoints |
-| Switch | 2 | Humidifier on/off, light on/off |
-| Number | 13 | **Fan in/out speed (0–3)**, temp/humidity setpoints, fan cycle timers, humidifier durations, brightness |
-| Light | 1 | LED strip with RGB color, brightness, and 6 animation effects |
-| Select | 2 | Control mode (Smart/Manual), mushroom type (29 species) |
+| Type | Count | Description |
+|------|-------|-------------|
+| Sensor | 8 | Temperature, humidity (calibrated), raw temperature/humidity (disabled by default), target min/max setpoints (disabled by default) |
+| Switch | 4 | Humidifier on/off, light on/off, smart light enable, smart humidifier enable |
+| Number | 15 | Fan in/out speed (0–3), temp/humidity setpoints, fan cycle timers, humidifier durations, brightness, calibration offsets |
+| Light | 1 | LED strip with RGB color, brightness, 29 animations + Emotional mode |
+| Select | 4 | Control mode (Smart/Manual), mushroom type (29 species), light mode, light animation |
 
-**Total: 24 entities per device**
+**Total: 32 entities per device**
 
 ### Fan Speed Control
 
@@ -36,6 +39,26 @@ The two fan speed sliders (`Fan in speed`, `Fan out speed`) match what the offic
 | 1 | Low speed |
 | 2 | Medium speed |
 | 3 | High speed |
+
+### Light Animations
+
+RAINBOW, AURORA, BEATCHASE, BPM, BREATH, COLORWAVES, CONFETTI, CYANMAGENTAFADE, FIRE, FIREFLYDANCE, FROZENPULSE, ICECOMET, NOISE, OCEANWAVE, PASTELWAVES, PIXELMETEOR, POLICELIGHTS, POPCORN, PRIDE, PULSERAINBOW, RAINBOWGLITTER, RAINBOWMARCH, RAINBOWPOP, RANDOMCHASE, RGBFADEALL, RGB_WAVE, SINELON, SOFTWHITETWINKLE, SUNSETFADE
+
+### Light Modes
+
+| Mode | Description |
+|------|-------------|
+| ANIMATION | Cycles through the selected animation pattern |
+| MANUAL | Solid color set via RGB picker |
+| EMOTIONAL | Dynamic mood-reactive lighting |
+
+### Calibration
+
+The temperature and humidity calibration offset entities (`-10` to `+10`) adjust the sensor readings. The calibrated values are what the main Temperature and Humidity sensors report. Raw (uncalibrated) sensor entities are available but disabled by default.
+
+### Smart Mode Subsystems
+
+When the device is in SMART control mode, the **Smart light enable** and **Smart humidifier enable** switches control whether each subsystem participates in the automated cycle. The timer duration entities (intake/exhaust fan on/off, humidifier on/below-min) configure the SMART mode cycle timing.
 
 ## Supported Mushroom Types
 
@@ -85,7 +108,7 @@ Lykyn Integration (this)
     ├── REST API (HTTPS) ── Initial auth + device fetch
     |
     └── Socket.io (WSS) ── Real-time sensor data + control commands
-         |
+         |                  (updateDevice + realtimeDeviceUpdates)
          v
     lykyn.app (Cloud)
          |
@@ -99,7 +122,7 @@ The full reverse-engineered protocol is documented in [`custom_components/lykyn/
 
 - All REST API endpoints
 - Socket.io events and payloads
-- Device data model
+- Device data model (including nested `smart`, `calibrate` sub-objects)
 - BLE setup protocol
 - Authentication flow
 
@@ -113,7 +136,7 @@ This integration was built entirely through reverse engineering:
 4. **JS bundle analysis** - Downloaded and analyzed 33 minified JavaScript bundles to extract the full Socket.io protocol, REST API endpoints, and device data model
 5. **Built the integration** - Created a full HA custom component with real-time push updates
 
-The entire reverse engineering and integration development was done by Claude Code (Anthropic's AI coding agent) in approximately 2-3 hours.
+The entire reverse engineering and integration development was done by Claude Code (Anthropic's AI coding agent).
 
 ## Disclaimer
 
