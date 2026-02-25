@@ -8,7 +8,7 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from homeassistant.config_entries import ConfigEntry
 
-from .const import DOMAIN, MUSHROOM_PRESETS
+from .const import DOMAIN, LIGHT_ANIMATIONS, LIGHT_MODES, MUSHROOM_PRESETS
 from .coordinator import LykynCoordinator
 from .entity import LykynEntity
 
@@ -62,6 +62,8 @@ async def async_setup_entry(
         entities.extend([
             LykynControlTypeSelect(coordinator, device_id),
             LykynMushroomSelect(coordinator, device_id),
+            LykynLightModeSelect(coordinator, device_id),
+            LykynLightAnimationSelect(coordinator, device_id),
         ])
 
     async_add_entities(entities)
@@ -114,3 +116,45 @@ class LykynMushroomSelect(LykynEntity, SelectEntity):
             "maxHum": preset["maxHum"],
         }
         await self.coordinator.client.update_device_info(self._device_id, update)
+
+
+class LykynLightModeSelect(LykynEntity, SelectEntity):
+    """Light mode selector (ANIMATION/MANUAL/EMOTIONAL)."""
+
+    _attr_translation_key = "light_mode"
+    _attr_icon = "mdi:lightbulb-cog"
+    _attr_options = LIGHT_MODES
+
+    def __init__(self, coordinator: LykynCoordinator, device_id: str) -> None:
+        super().__init__(coordinator, device_id)
+        self._attr_unique_id = f"{device_id}_light_mode"
+
+    @property
+    def current_option(self) -> str | None:
+        return self._device_info_data.get("lightMode")
+
+    async def async_select_option(self, option: str) -> None:
+        await self.coordinator.client.update_device_info(
+            self._device_id, {"lightMode": option}
+        )
+
+
+class LykynLightAnimationSelect(LykynEntity, SelectEntity):
+    """Light animation selector (29 animations)."""
+
+    _attr_translation_key = "light_animation"
+    _attr_icon = "mdi:animation"
+    _attr_options = LIGHT_ANIMATIONS
+
+    def __init__(self, coordinator: LykynCoordinator, device_id: str) -> None:
+        super().__init__(coordinator, device_id)
+        self._attr_unique_id = f"{device_id}_light_animation"
+
+    @property
+    def current_option(self) -> str | None:
+        return self._device_info_data.get("lightAnimation")
+
+    async def async_select_option(self, option: str) -> None:
+        await self.coordinator.client.update_device_info(
+            self._device_id, {"lightMode": "ANIMATION", "lightAnimation": option}
+        )

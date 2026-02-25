@@ -21,6 +21,8 @@ from .entity import LykynEntity
 
 _LOGGER = logging.getLogger(__name__)
 
+EFFECT_EMOTIONAL = "Emotional"
+
 
 async def async_setup_entry(
     hass: HomeAssistant,
@@ -65,12 +67,11 @@ class LykynLight(LykynEntity, LightEntity):
     def __init__(self, coordinator: LykynCoordinator, device_id: str) -> None:
         super().__init__(coordinator, device_id)
         self._attr_unique_id = f"{device_id}_light"
-        self._attr_effect_list = LIGHT_ANIMATIONS
+        self._attr_effect_list = LIGHT_ANIMATIONS + [EFFECT_EMOTIONAL]
 
     @property
     def is_on(self) -> bool | None:
-        info = self._device_info_data
-        return info.get("light", False) and info.get("lightMode") != "OFF"
+        return self._device_info_data.get("light", False)
 
     @property
     def brightness(self) -> int | None:
@@ -86,35 +87,39 @@ class LykynLight(LykynEntity, LightEntity):
     @property
     def effect(self) -> str | None:
         info = self._device_info_data
-        if info.get("lightMode") == "ANIMATION":
+        mode = info.get("lightMode")
+        if mode == "ANIMATION":
             return info.get("lightAnimation", "RAINBOW")
+        if mode == "EMOTIONAL":
+            return EFFECT_EMOTIONAL
         return None
 
     async def async_turn_on(self, **kwargs) -> None:
         update = {"light": True}
 
         if ATTR_BRIGHTNESS in kwargs:
-            # HA 0-255 → Lykyn 0-100
+            # HA 0-255 -> Lykyn 0-100
             update["lightBrightness"] = int(kwargs[ATTR_BRIGHTNESS] * 100 / 255)
 
-        if ATTR_RGB_COLOR in kwargs:
-            update["lightMode"] = "SOLID"
+        if ATTR_EFFECT in kwargs:
+            effect = kwargs[ATTR_EFFECT]
+            if effect == EFFECT_EMOTIONAL:
+                update["lightMode"] = "EMOTIONAL"
+            else:
+                update["lightMode"] = "ANIMATION"
+                update["lightAnimation"] = effect
+        elif ATTR_RGB_COLOR in kwargs:
+            update["lightMode"] = "MANUAL"
             update["lightColor"] = _rgb_to_hex(kwargs[ATTR_RGB_COLOR])
 
-        if ATTR_EFFECT in kwargs:
-            update["lightMode"] = "ANIMATION"
-            update["lightAnimation"] = kwargs[ATTR_EFFECT]
-
-        # If no mode specified and currently off, default to animation
-        if "lightMode" not in update:
-            current_mode = self._device_info_data.get("lightMode", "OFF")
-            if current_mode == "OFF":
-                update["lightMode"] = DEFAULT_LIGHT_SETTINGS["lightMode"]
-                update["lightAnimation"] = DEFAULT_LIGHT_SETTINGS["lightAnimation"]
+        # If turning on with no mode specified and light was off, use defaults
+        if "lightMode" not in update and not self.is_on:
+            update["lightMode"] = DEFAULT_LIGHT_SETTINGS["lightMode"]
+            update["lightAnimation"] = DEFAULT_LIGHT_SETTINGS["lightAnimation"]
 
         await self.coordinator.client.update_device_info(self._device_id, update)
 
     async def async_turn_off(self, **kwargs) -> None:
         await self.coordinator.client.update_device_info(
-            self._device_id, {"light": False, "lightMode": "OFF"}
+            self._device_id, {"light": False}
         )

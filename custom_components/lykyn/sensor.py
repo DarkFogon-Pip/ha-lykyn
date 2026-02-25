@@ -33,6 +33,8 @@ async def async_setup_entry(
         entities.extend([
             LykynTemperatureSensor(coordinator, device_id),
             LykynHumiditySensor(coordinator, device_id),
+            LykynRawTemperatureSensor(coordinator, device_id),
+            LykynRawHumiditySensor(coordinator, device_id),
             LykynTargetTempMinSensor(coordinator, device_id),
             LykynTargetTempMaxSensor(coordinator, device_id),
             LykynTargetHumMinSensor(coordinator, device_id),
@@ -43,7 +45,7 @@ async def async_setup_entry(
 
 
 class LykynTemperatureSensor(LykynEntity, SensorEntity):
-    """Temperature sensor."""
+    """Calibrated temperature sensor."""
 
     _attr_device_class = SensorDeviceClass.TEMPERATURE
     _attr_state_class = SensorStateClass.MEASUREMENT
@@ -56,12 +58,12 @@ class LykynTemperatureSensor(LykynEntity, SensorEntity):
 
     @property
     def native_value(self) -> float | None:
-        info = self._device_info_data
-        return info.get("calibratedTemp") or info.get("temp")
+        calibrate = self._device_info_data.get("calibrate", {})
+        return calibrate.get("calibratedTemp") or calibrate.get("temp")
 
 
 class LykynHumiditySensor(LykynEntity, SensorEntity):
-    """Humidity sensor."""
+    """Calibrated humidity sensor."""
 
     _attr_device_class = SensorDeviceClass.HUMIDITY
     _attr_state_class = SensorStateClass.MEASUREMENT
@@ -74,8 +76,49 @@ class LykynHumiditySensor(LykynEntity, SensorEntity):
 
     @property
     def native_value(self) -> float | None:
-        info = self._device_info_data
-        val = info.get("calibratedHum") or info.get("hum")
+        calibrate = self._device_info_data.get("calibrate", {})
+        val = calibrate.get("calibratedHum") or calibrate.get("hum")
+        if val is not None:
+            return min(val, 100.0)
+        return None
+
+
+class LykynRawTemperatureSensor(LykynEntity, SensorEntity):
+    """Raw (uncalibrated) temperature sensor."""
+
+    _attr_device_class = SensorDeviceClass.TEMPERATURE
+    _attr_state_class = SensorStateClass.MEASUREMENT
+    _attr_native_unit_of_measurement = UnitOfTemperature.CELSIUS
+    _attr_translation_key = "raw_temperature"
+    _attr_entity_registry_enabled_default = False
+
+    def __init__(self, coordinator: LykynCoordinator, device_id: str) -> None:
+        super().__init__(coordinator, device_id)
+        self._attr_unique_id = f"{device_id}_raw_temperature"
+
+    @property
+    def native_value(self) -> float | None:
+        calibrate = self._device_info_data.get("calibrate", {})
+        return calibrate.get("temp")
+
+
+class LykynRawHumiditySensor(LykynEntity, SensorEntity):
+    """Raw (uncalibrated) humidity sensor."""
+
+    _attr_device_class = SensorDeviceClass.HUMIDITY
+    _attr_state_class = SensorStateClass.MEASUREMENT
+    _attr_native_unit_of_measurement = PERCENTAGE
+    _attr_translation_key = "raw_humidity"
+    _attr_entity_registry_enabled_default = False
+
+    def __init__(self, coordinator: LykynCoordinator, device_id: str) -> None:
+        super().__init__(coordinator, device_id)
+        self._attr_unique_id = f"{device_id}_raw_humidity"
+
+    @property
+    def native_value(self) -> float | None:
+        calibrate = self._device_info_data.get("calibrate", {})
+        val = calibrate.get("hum")
         if val is not None:
             return min(val, 100.0)
         return None

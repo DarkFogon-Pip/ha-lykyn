@@ -235,6 +235,26 @@ class LykynApiClient:
                 _LOGGER.debug("Device updated: %s (%s)", device.get("name"), device_id)
                 await self._notify_update(device_id)
 
+        @self._sio.on("realtimeDeviceUpdates")
+        async def on_realtime_device_updates(data, *args):
+            device_id = data.get("id") if isinstance(data, dict) else None
+            if device_id and device_id in self._devices:
+                device = self._devices[device_id]
+                info = device.get("info", {})
+                calibrate = info.get("calibrate", {})
+                if "temp" in data:
+                    calibrate["temp"] = data["temp"]
+                if "hum" in data:
+                    calibrate["hum"] = data["hum"]
+                if "calibratedTemp" in data:
+                    calibrate["calibratedTemp"] = data["calibratedTemp"]
+                if "calibratedHum" in data:
+                    calibrate["calibratedHum"] = data["calibratedHum"]
+                info["calibrate"] = calibrate
+                device["info"] = info
+                _LOGGER.debug("Realtime update for %s: temp=%s hum=%s", device_id, data.get("temp"), data.get("hum"))
+                await self._notify_update(device_id)
+
         @self._sio.on("deleteDevice")
         async def on_delete_device(device_id):
             self._devices.pop(device_id, None)
@@ -264,10 +284,20 @@ class LykynApiClient:
         _LOGGER.debug("Sent updateDevice for %s: %s", device_id, update)
 
     async def update_device_info(self, device_id: str, info_update: dict) -> None:
-        """Update the info field of a device."""
+        """Update the info field of a device.
+
+        Handles nested sub-objects (smart, calibrate) by merging them
+        rather than replacing.
+        """
         device = self._devices.get(device_id, {})
         current_info = dict(device.get("info", {}))
-        current_info.update(info_update)
+        for key, value in info_update.items():
+            if isinstance(value, dict) and isinstance(current_info.get(key), dict):
+                merged = dict(current_info[key])
+                merged.update(value)
+                current_info[key] = merged
+            else:
+                current_info[key] = value
         await self.update_device(device_id, {"info": current_info})
 
     async def disconnect_socket(self) -> None:

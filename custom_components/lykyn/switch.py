@@ -28,6 +28,8 @@ async def async_setup_entry(
         entities.extend([
             LykynHumidifierSwitch(coordinator, device_id),
             LykynLightSwitch(coordinator, device_id),
+            LykynSmartLightSwitch(coordinator, device_id),
+            LykynSmartHumidifierSwitch(coordinator, device_id),
         ])
 
     async_add_entities(entities)
@@ -59,7 +61,7 @@ class LykynHumidifierSwitch(LykynEntity, SwitchEntity):
 
 
 class LykynLightSwitch(LykynEntity, SwitchEntity):
-    """Light on/off switch."""
+    """Light on/off switch (also controlled by the light entity)."""
 
     _attr_translation_key = "light_switch"
     _attr_icon = "mdi:led-strip-variant"
@@ -80,4 +82,56 @@ class LykynLightSwitch(LykynEntity, SwitchEntity):
     async def async_turn_off(self, **kwargs) -> None:
         await self.coordinator.client.update_device_info(
             self._device_id, {"light": False}
+        )
+
+
+class LykynSmartLightSwitch(LykynEntity, SwitchEntity):
+    """Enable light subsystem in SMART mode (info.smart.light)."""
+
+    _attr_translation_key = "smart_light"
+    _attr_icon = "mdi:lightbulb-auto"
+
+    def __init__(self, coordinator: LykynCoordinator, device_id: str) -> None:
+        super().__init__(coordinator, device_id)
+        self._attr_unique_id = f"{device_id}_smart_light"
+
+    @property
+    def is_on(self) -> bool | None:
+        smart = self._device_info_data.get("smart", {})
+        return smart.get("light")
+
+    async def async_turn_on(self, **kwargs) -> None:
+        await self.coordinator.client.update_device_info(
+            self._device_id, {"smart": {"light": True}}
+        )
+
+    async def async_turn_off(self, **kwargs) -> None:
+        await self.coordinator.client.update_device_info(
+            self._device_id, {"smart": {"light": False}}
+        )
+
+
+class LykynSmartHumidifierSwitch(LykynEntity, SwitchEntity):
+    """Enable humidifier subsystem in SMART mode (info.smart.humidifier)."""
+
+    _attr_translation_key = "smart_humidifier"
+    _attr_icon = "mdi:air-humidifier"
+
+    def __init__(self, coordinator: LykynCoordinator, device_id: str) -> None:
+        super().__init__(coordinator, device_id)
+        self._attr_unique_id = f"{device_id}_smart_humidifier"
+
+    @property
+    def is_on(self) -> bool | None:
+        smart = self._device_info_data.get("smart", {})
+        return smart.get("humidifier")
+
+    async def async_turn_on(self, **kwargs) -> None:
+        await self.coordinator.client.update_device_info(
+            self._device_id, {"smart": {"humidifier": True}}
+        )
+
+    async def async_turn_off(self, **kwargs) -> None:
+        await self.coordinator.client.update_device_info(
+            self._device_id, {"smart": {"humidifier": False}}
         )

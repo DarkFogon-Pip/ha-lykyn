@@ -22,6 +22,8 @@
     "sensor": {
       "temperature": { "name": "Temperature" },
       "humidity": { "name": "Humidity" },
+      "raw_temperature": { "name": "Raw temperature" },
+      "raw_humidity": { "name": "Raw humidity" },
       "target_temp_min": { "name": "Target temperature min" },
       "target_temp_max": { "name": "Target temperature max" },
       "target_hum_min": { "name": "Target humidity min" },
@@ -29,9 +31,13 @@
     },
     "switch": {
       "humidifier": { "name": "Humidifier" },
-      "light_switch": { "name": "Light" }
+      "light_switch": { "name": "Light" },
+      "smart_light": { "name": "Smart light enable" },
+      "smart_humidifier": { "name": "Smart humidifier enable" }
     },
     "number": {
+      "fan_in_speed": { "name": "Fan in speed" },
+      "fan_out_speed": { "name": "Fan out speed" },
       "min_temperature": { "name": "Min temperature setpoint" },
       "max_temperature": { "name": "Max temperature setpoint" },
       "min_humidity": { "name": "Min humidity setpoint" },
@@ -42,14 +48,18 @@
       "exhaust_fan_off": { "name": "Exhaust fan OFF duration" },
       "humidifier_on_duration": { "name": "Humidifier ON duration" },
       "humidifier_below_min_duration": { "name": "Humidifier below-min duration" },
-      "light_brightness": { "name": "Light brightness" }
+      "light_brightness": { "name": "Light brightness" },
+      "temp_calibration_offset": { "name": "Temperature calibration offset" },
+      "humidity_calibration_offset": { "name": "Humidity calibration offset" }
     },
     "light": {
       "led_strip": { "name": "LED strip" }
     },
     "select": {
       "control_type": { "name": "Control mode" },
-      "mushroom_type": { "name": "Mushroom type" }
+      "mushroom_type": { "name": "Mushroom type" },
+      "light_mode": { "name": "Light mode" },
+      "light_animation": { "name": "Light animation" }
     }
   }
 }

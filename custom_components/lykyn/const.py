@@ -49,19 +49,51 @@ MUSHROOM_PRESETS = {
 }
 
 LIGHT_ANIMATIONS = [
-    "AURORA",
-    "BREATH",
-    "RGB_WAVE",
     "RAINBOW",
+    "AURORA",
+    "BEATCHASE",
+    "BPM",
+    "BREATH",
+    "COLORWAVES",
     "CONFETTI",
+    "CYANMAGENTAFADE",
+    "FIRE",
+    "FIREFLYDANCE",
+    "FROZENPULSE",
+    "ICECOMET",
+    "NOISE",
+    "OCEANWAVE",
+    "PASTELWAVES",
+    "PIXELMETEOR",
+    "POLICELIGHTS",
+    "POPCORN",
+    "PRIDE",
+    "PULSERAINBOW",
+    "RAINBOWGLITTER",
+    "RAINBOWMARCH",
+    "RAINBOWPOP",
+    "RANDOMCHASE",
+    "RGBFADEALL",
+    "RGB_WAVE",
+    "SINELON",
+    "SOFTWHITETWINKLE",
     "SUNSETFADE",
 ]
 
-LIGHT_MODES = ["ANIMATION", "SOLID", "OFF"]
+LIGHT_MODES = ["ANIMATION", "MANUAL", "EMOTIONAL"]
 
 DEFAULT_LIGHT_SETTINGS = {
     "lightMode": "ANIMATION",
     "lightColor": "#FFFFFF",
     "lightBrightness": 50,
     "lightAnimation": "RAINBOW",
+}
+
+DEFAULT_CALIBRATE = {
+    "temp": 0,
+    "tempPercent": 0,
+    "calibratedTemp": 0,
+    "hum": 0,
+    "humPercent": 0,
+    "calibratedHum": 0,
 }
