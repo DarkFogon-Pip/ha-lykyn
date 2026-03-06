@@ -52,5 +52,8 @@ class LykynCoordinator(DataUpdateCoordinator):
 
     async def async_shutdown(self) -> None:
         """Shut down the coordinator."""
-        self.client.unregister_update_callback(self._on_device_update)
+        try:
+            self.client.unregister_update_callback(self._on_device_update)
+        except ValueError:
+            pass
         await self.client.close()
