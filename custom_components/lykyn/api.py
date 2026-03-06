@@ -287,18 +287,19 @@ class LykynApiClient:
         """Update the info field of a device.
 
         Handles nested sub-objects (smart, calibrate) by merging them
-        rather than replacing.
+        rather than replacing. Optimistically updates local cache before
+        sending to server, and only sends changed fields (not the full
+        info object) to avoid stale data conflicts.
         """
         device = self._devices.get(device_id, {})
-        current_info = dict(device.get("info", {}))
+        current_info = device.get("info", {})
         for key, value in info_update.items():
             if isinstance(value, dict) and isinstance(current_info.get(key), dict):
-                merged = dict(current_info[key])
-                merged.update(value)
-                current_info[key] = merged
+                current_info[key].update(value)
             else:
                 current_info[key] = value
-        await self.update_device(device_id, {"info": current_info})
+        await self._notify_update(device_id)
+        await self.update_device(device_id, {"info": info_update})
 
     async def disconnect_socket(self) -> None:
         """Disconnect Socket.io."""

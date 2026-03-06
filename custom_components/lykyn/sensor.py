@@ -58,8 +58,9 @@ class LykynTemperatureSensor(LykynEntity, SensorEntity):
 
     @property
     def native_value(self) -> float | None:
-        calibrate = self._device_info_data.get("calibrate", {})
-        return calibrate.get("calibratedTemp") or calibrate.get("temp")
+        info = self._device_info_data
+        calibrate = info.get("calibrate", {})
+        return calibrate.get("calibratedTemp") or calibrate.get("temp") or info.get("temp")
 
 
 class LykynHumiditySensor(LykynEntity, SensorEntity):
@@ -76,8 +77,9 @@ class LykynHumiditySensor(LykynEntity, SensorEntity):
 
     @property
     def native_value(self) -> float | None:
-        calibrate = self._device_info_data.get("calibrate", {})
-        val = calibrate.get("calibratedHum") or calibrate.get("hum")
+        info = self._device_info_data
+        calibrate = info.get("calibrate", {})
+        val = calibrate.get("calibratedHum") or calibrate.get("hum") or info.get("hum")
         if val is not None:
             return min(val, 100.0)
         return None
@@ -98,8 +100,9 @@ class LykynRawTemperatureSensor(LykynEntity, SensorEntity):
 
     @property
     def native_value(self) -> float | None:
-        calibrate = self._device_info_data.get("calibrate", {})
-        return calibrate.get("temp")
+        info = self._device_info_data
+        calibrate = info.get("calibrate", {})
+        return calibrate.get("temp") or info.get("temp")
 
 
 class LykynRawHumiditySensor(LykynEntity, SensorEntity):
@@ -117,8 +120,9 @@ class LykynRawHumiditySensor(LykynEntity, SensorEntity):
 
     @property
     def native_value(self) -> float | None:
-        calibrate = self._device_info_data.get("calibrate", {})
-        val = calibrate.get("hum")
+        info = self._device_info_data
+        calibrate = info.get("calibrate", {})
+        val = calibrate.get("hum") or info.get("hum")
         if val is not None:
             return min(val, 100.0)
         return None
